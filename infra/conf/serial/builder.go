@@ -15,11 +15,11 @@ import (
 // UseStrictJSON, when true, makes JSON config decoders skip the custom
 // comment-stripping reader and parse input as strict RFC 8259 JSON.
 //
-// Enabled by setting the env variable xray.json.strict=true (or its normalized
-// form XRAY_JSON_STRICT=true). Default false preserves backward-compatible
-// behavior for human-edited configs that may contain comments or other
-// JSON5/JSONC syntax.
-var UseStrictJSON = platform.NewEnvFlag(platform.UseStrictJSON).GetValue(func() string { return "" }) == "true"
+// Enabled by setting the env variable auray.json.strict=true (or its normalized
+// form AURAY_JSON_STRICT=true). The legacy Xray-core names remain supported.
+// Default false preserves backward-compatible behavior for human-edited configs
+// that may contain comments or other JSON5/JSONC syntax.
+var UseStrictJSON = platform.NewEnvFlagWithFallback(platform.AurayUseStrictJSON, platform.UseStrictJSON).GetValue(func() string { return "" }) == "true"
 
 func MergeConfigFromFiles(files []*core.ConfigSource) (string, error) {
 	c, err := mergeConfigs(files)

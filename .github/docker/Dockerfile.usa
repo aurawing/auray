@@ -1,12 +1,12 @@
 # syntax=docker/dockerfile:latest
 FROM --platform=$BUILDPLATFORM golang:latest AS build
 
-# Build xray-core
+# Build Auray from Xray-core
 WORKDIR /src
 COPY . .
 ARG TARGETOS
 ARG TARGETARCH
-RUN GOOS=$TARGETOS GOARCH=$TARGETARCH CGO_ENABLED=0 go build -o xray -trimpath -buildvcs=false -gcflags="all=-l=4" -ldflags "-s -w -buildid=" ./main
+RUN GOOS=$TARGETOS GOARCH=$TARGETARCH CGO_ENABLED=0 go build -o auray -trimpath -buildvcs=false -gcflags="all=-l=4" -ldflags "-s -w -buildid=" ./main
 
 # Download geodat into a staging directory
 ADD https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/geoip.dat /tmp/geodat/geoip.dat
@@ -15,35 +15,35 @@ ADD https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/geosi
 RUN mkdir -p /tmp/empty
 
 # Create config files with empty JSON content
-RUN mkdir -p /tmp/usr/local/etc/xray
-RUN cat <<EOF >/tmp/usr/local/etc/xray/00_log.json
+RUN mkdir -p /tmp/usr/local/etc/auray
+RUN cat <<EOF >/tmp/usr/local/etc/auray/00_log.json
 {
   "log": {
-    "error": "/var/log/xray/error.log",
+    "error": "/var/log/auray/error.log",
     "loglevel": "warning",
     "access": "none",
     "dnsLog": false
   }
 }
 EOF
-RUN echo '{}' >/tmp/usr/local/etc/xray/01_api.json
-RUN echo '{}' >/tmp/usr/local/etc/xray/02_dns.json
-RUN echo '{}' >/tmp/usr/local/etc/xray/03_routing.json
-RUN echo '{}' >/tmp/usr/local/etc/xray/04_policy.json
-RUN echo '{}' >/tmp/usr/local/etc/xray/05_inbounds.json
-RUN echo '{}' >/tmp/usr/local/etc/xray/06_outbounds.json
-RUN echo '{}' >/tmp/usr/local/etc/xray/07_stats.json
-RUN echo '{}' >/tmp/usr/local/etc/xray/08_fakedns.json
-RUN echo '{}' >/tmp/usr/local/etc/xray/09_metrics.json
-RUN echo '{}' >/tmp/usr/local/etc/xray/10_observatory.json
-RUN echo '{}' >/tmp/usr/local/etc/xray/11_geodata.json
-RUN echo '{}' >/tmp/usr/local/etc/xray/12_env.json
-RUN echo '{}' >/tmp/usr/local/etc/xray/99_version.json
+RUN echo '{}' >/tmp/usr/local/etc/auray/01_api.json
+RUN echo '{}' >/tmp/usr/local/etc/auray/02_dns.json
+RUN echo '{}' >/tmp/usr/local/etc/auray/03_routing.json
+RUN echo '{}' >/tmp/usr/local/etc/auray/04_policy.json
+RUN echo '{}' >/tmp/usr/local/etc/auray/05_inbounds.json
+RUN echo '{}' >/tmp/usr/local/etc/auray/06_outbounds.json
+RUN echo '{}' >/tmp/usr/local/etc/auray/07_stats.json
+RUN echo '{}' >/tmp/usr/local/etc/auray/08_fakedns.json
+RUN echo '{}' >/tmp/usr/local/etc/auray/09_metrics.json
+RUN echo '{}' >/tmp/usr/local/etc/auray/10_observatory.json
+RUN echo '{}' >/tmp/usr/local/etc/auray/11_geodata.json
+RUN echo '{}' >/tmp/usr/local/etc/auray/12_env.json
+RUN echo '{}' >/tmp/usr/local/etc/auray/99_version.json
 
 # Create log files
-RUN mkdir -p /tmp/var/log/xray && touch \
-  /tmp/var/log/xray/access.log \
-  /tmp/var/log/xray/error.log
+RUN mkdir -p /tmp/var/log/auray && touch \
+  /tmp/var/log/auray/access.log \
+  /tmp/var/log/auray/error.log
 
 # Build finally image
 # Note on Distroless Base Image and Architecture Support:
@@ -57,19 +57,19 @@ RUN mkdir -p /tmp/var/log/xray && touch \
 # - Due to this similarity in content, it is feasible to forcibly specify a single platform (e.g., '--platform=linux/amd64') for unsupported architectures, as the core image content remains compatible with statically compiled binaries like Go applications.
 FROM --platform=linux/amd64 gcr.io/distroless/static:nonroot
 
-COPY --from=build --chown=0:0 --chmod=755 /src/xray /usr/local/bin/xray
-COPY --from=build --chown=65532:65532 --chmod=755 /tmp/empty /usr/local/share/xray
-COPY --from=build --chown=65532:65532 --chmod=644 /tmp/geodat/*.dat /usr/local/share/xray/
-COPY --from=build --chown=0:0 --chmod=755 /tmp/empty /usr/local/etc/xray
-COPY --from=build --chown=0:0 --chmod=644 /tmp/usr/local/etc/xray/*.json /usr/local/etc/xray/
-COPY --from=build --chown=0:0 --chmod=755 /tmp/empty /var/log/xray
-COPY --from=build --chown=65532:65532 --chmod=600 /tmp/var/log/xray/*.log /var/log/xray/
+COPY --from=build --chown=0:0 --chmod=755 /src/auray /usr/local/bin/auray
+COPY --from=build --chown=65532:65532 --chmod=755 /tmp/empty /usr/local/share/auray
+COPY --from=build --chown=65532:65532 --chmod=644 /tmp/geodat/*.dat /usr/local/share/auray/
+COPY --from=build --chown=0:0 --chmod=755 /tmp/empty /usr/local/etc/auray
+COPY --from=build --chown=0:0 --chmod=644 /tmp/usr/local/etc/auray/*.json /usr/local/etc/auray/
+COPY --from=build --chown=0:0 --chmod=755 /tmp/empty /var/log/auray
+COPY --from=build --chown=65532:65532 --chmod=600 /tmp/var/log/auray/*.log /var/log/auray/
 
-VOLUME /usr/local/etc/xray
-VOLUME /var/log/xray
+VOLUME /usr/local/etc/auray
+VOLUME /var/log/auray
 
 ARG TZ=Etc/UTC
 ENV TZ=$TZ
 
-ENTRYPOINT [ "/usr/local/bin/xray" ]
-CMD [ "-confdir", "/usr/local/etc/xray/" ]
+ENTRYPOINT [ "/usr/local/bin/auray" ]
+CMD [ "-confdir", "/usr/local/etc/auray/" ]

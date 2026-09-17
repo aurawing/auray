@@ -307,14 +307,14 @@ func NewProcessNameMatcher(names []string) *ProcessNameMatcher {
 			matchXraySelf = true
 			continue
 		}
-		// replace xray/ with self executable path
-		if name == "xray/" {
-			xrayPath, err := os.Executable()
+		// Replace auray/ (and the legacy xray/ alias) with the executable path.
+		if name == "auray/" || name == "xray/" {
+			executablePath, err := os.Executable()
 			if err != nil {
-				errors.LogError(context.Background(), "Failed to get xray executable path: ", err)
+				errors.LogError(context.Background(), "Failed to get Auray executable path: ", err)
 				continue
 			}
-			name = xrayPath
+			name = executablePath
 		}
 		name := filepath.ToSlash(name)
 		// /usr/bin/
@@ -395,8 +395,8 @@ func (m *ProcessNameMatcher) Apply(ctx routing.Context) bool {
 	return false
 }
 
-// LocalOSMatcher matches the operating system Xray itself is running on. That never
-// changes while Xray is running, so the result is resolved when the rule is built.
+// LocalOSMatcher matches the operating system Auray itself is running on. That never
+// changes while Auray is running, so the result is resolved when the rule is built.
 type LocalOSMatcher struct {
 	matched bool
 }

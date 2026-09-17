@@ -236,7 +236,7 @@ Obtain the fd from VpnService:
 val tunFd = vpnInterface.fd
 ```
 
-Set the environment variable `xray.tun.fd` (or `XRAY_TUN_FD`) to the fd number before starting Xray. This can be done from Kotlin/Java or by exposing a Go function via gomobile bindings.
+Set `auray.tun.fd` (or `AURAY_TUN_FD`) to the fd number before starting Auray. The legacy `xray.tun.fd` and `XRAY_TUN_FD` names remain supported. This can be done from Kotlin/Java or by exposing a Go function via gomobile bindings.
 
 Build using gomobile for Android library integration:
 ```
@@ -256,7 +256,7 @@ let tunFd = ((0 ... 1024).first { (_ fd: Int32) -> Bool in var len = socklen_t(b
 }!
 ```
 
-Set the environment variable `xray.tun.fd` (or `XRAY_TUN_FD`) to the fd number before starting Xray. This can be done from Swift/Objective-C or by exposing a Go function via gomobile bindings.
+Set `auray.tun.fd` (or `AURAY_TUN_FD`) to the fd number before starting Auray. The legacy `xray.tun.fd` and `XRAY_TUN_FD` names remain supported. This can be done from Swift/Objective-C or by exposing a Go function via gomobile bindings.
 
 Build using gomobile for iOS framework integration:
 ```

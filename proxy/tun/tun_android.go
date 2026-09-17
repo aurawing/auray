@@ -24,7 +24,7 @@ var _ Tun = (*AndroidTun)(nil)
 
 // NewTun builds new tun interface handler
 func NewTun(options *Config) (Tun, error) {
-	fd, err := strconv.Atoi(platform.NewEnvFlag(platform.TunFdKey).GetValue(func() string { return "0" }))
+	fd, err := strconv.Atoi(platform.NewEnvFlagWithFallback(platform.AurayTunFdKey, platform.TunFdKey).GetValue(func() string { return "0" }))
 	errors.LogInfo(context.Background(), "read Android Tun Fd ", fd, err)
 
 	err = unix.SetNonblock(fd, true)

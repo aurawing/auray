@@ -24,10 +24,11 @@ var (
 )
 
 var (
-	build    = "Custom"
-	codename = "Xray, Penetrates Everything."
-	intro    = "A unified platform for anti-censorship."
+	build               = "Custom"
+	distributionVersion = "1.0.0"
 )
+
+const distributionName = "Auray"
 
 func init() {
 	// Manually injected
@@ -63,10 +64,21 @@ func Version() string {
 	return fmt.Sprintf("%v.%v.%v", Version_x, Version_y, Version_z)
 }
 
+// DistributionName returns the name of this Xray-core distribution.
+func DistributionName() string {
+	return distributionName
+}
+
+// DistributionVersion returns Auray's own release version.
+// It is intentionally separate from Version(), which remains the upstream
+// Xray-core version used by compatibility-sensitive code.
+func DistributionVersion() string {
+	return distributionVersion
+}
+
 // VersionStatement returns a list of strings representing the full version info.
 func VersionStatement() []string {
 	return []string{
-		serial.Concat("Xray ", Version(), " (", codename, ") ", build, " (", runtime.Version(), " ", runtime.GOOS, "/", runtime.GOARCH, ")"),
-		intro,
+		serial.Concat(DistributionName(), " ", DistributionVersion(), " ", build, " (", runtime.Version(), " ", runtime.GOOS, "/", runtime.GOARCH, ")"),
 	}
 }

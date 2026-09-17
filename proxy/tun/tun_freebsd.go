@@ -765,7 +765,7 @@ func checkEscapeFib() error {
 		return xerrors.New("failed to read net.my_fibnum").Base(err)
 	}
 	if current == escapeFib {
-		return errors.New("xray runs inside routing table 1, which is reserved as the escape table; start it in another FIB")
+		return errors.New("Auray runs inside routing table 1, which is reserved as the escape table; start it in another FIB")
 	}
 	return nil
 }

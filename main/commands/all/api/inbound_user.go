@@ -29,7 +29,7 @@ Arguments:
 Example:
 
 	{{.Exec}} {{.LongName}} --server=127.0.0.1:8080 -tag="tag name"
-	{{.Exec}} {{.LongName}} --server=127.0.0.1:8080 -tag="tag name" -email="xray@love.com"
+	{{.Exec}} {{.LongName}} --server=127.0.0.1:8080 -tag="tag name" -email="auray@example.com"
 `,
 	Run: executeInboundUser,
 }

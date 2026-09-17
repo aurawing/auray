@@ -23,7 +23,7 @@ Arguments:
 	-tag
 		Inbound tag
 Example:
-    {{.Exec}} {{.LongName}} --server=127.0.0.1:8080 -tag="vless-in" "xray@love.com" ...
+    {{.Exec}} {{.LongName}} --server=127.0.0.1:8080 -tag="vless-in" "auray@example.com" ...
 `,
 	Run: executeRemoveUsers,
 }

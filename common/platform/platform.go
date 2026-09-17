@@ -8,6 +8,22 @@ import (
 )
 
 const (
+	AurayConfigLocation   = "auray.location.config"
+	AurayConfdirLocation  = "auray.location.confdir"
+	AurayAssetLocation    = "auray.location.asset"
+	AurayCertLocation     = "auray.location.cert"
+	AurayUseReadV         = "auray.buf.readv"
+	AurayUseFreedomSplice = "auray.buf.splice"
+	AurayUseVmessPadding  = "auray.vmess.padding"
+	AurayUseCone          = "auray.cone.disabled"
+	AurayUseStrictJSON    = "auray.json.strict"
+	AurayBufferSize       = "auray.ray.buffer.size"
+	AurayBrowserDialer    = "auray.browser.dialer"
+	AurayXUDPLog          = "auray.xudp.show"
+	AurayXUDPBaseKey      = "auray.xudp.basekey"
+	AurayTunFdKey         = "auray.tun.fd"
+
+	// Legacy Xray-core names remain supported for compatibility.
 	ConfigLocation  = "xray.location.config"
 	ConfdirLocation = "xray.location.confdir"
 	AssetLocation   = "xray.location.asset"
@@ -28,8 +44,9 @@ const (
 )
 
 type EnvFlag struct {
-	Name    string
-	AltName string
+	Name          string
+	AltName       string
+	fallbackNames []string
 }
 
 func NewEnvFlag(name string) EnvFlag {
@@ -39,12 +56,34 @@ func NewEnvFlag(name string) EnvFlag {
 	}
 }
 
+// NewEnvFlagWithFallback returns an environment flag that checks name first,
+// followed by fallbackNames. Both dotted and normalized uppercase forms are
+// accepted for every name.
+func NewEnvFlagWithFallback(name string, fallbackNames ...string) EnvFlag {
+	flag := NewEnvFlag(name)
+	flag.fallbackNames = append(flag.fallbackNames, fallbackNames...)
+	return flag
+}
+
+func lookupEnv(name string) (string, bool) {
+	if len(name) == 0 {
+		return "", false
+	}
+	return os.LookupEnv(name)
+}
+
 func (f EnvFlag) GetValue(defaultValue func() string) string {
-	if v, found := os.LookupEnv(f.Name); found {
+	if v, found := lookupEnv(f.Name); found {
 		return v
 	}
-	if len(f.AltName) > 0 {
-		if v, found := os.LookupEnv(f.AltName); found {
+	if v, found := lookupEnv(f.AltName); found {
+		return v
+	}
+	for _, name := range f.fallbackNames {
+		if v, found := lookupEnv(name); found {
+			return v
+		}
+		if v, found := lookupEnv(NormalizeEnvName(name)); found {
 			return v
 		}
 	}
@@ -81,12 +120,13 @@ func getExecutableDir() string {
 }
 
 func GetConfigurationPath() string {
-	configPath := NewEnvFlag(ConfigLocation).GetValue(getExecutableDir)
+	configPath := NewEnvFlagWithFallback(AurayConfigLocation, ConfigLocation).GetValue(getExecutableDir)
 	return filepath.Join(configPath, "config.json")
 }
 
-// GetConfDirPath reads "xray.location.confdir"
+// GetConfDirPath reads Auray's confdir location, falling back to Xray-core's
+// legacy environment variable.
 func GetConfDirPath() string {
-	configPath := NewEnvFlag(ConfdirLocation).GetValue(func() string { return "" })
+	configPath := NewEnvFlagWithFallback(AurayConfdirLocation, ConfdirLocation).GetValue(func() string { return "" })
 	return configPath
 }

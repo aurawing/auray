@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	directory = flag.String("pwd", "", "Working directory of Xray vformat.")
+	directory = flag.String("pwd", "", "Working directory of Auray vformat.")
 	action    = flag.String("mode", "format", "Execution mode. Default is 'format'.\n'format' formatting source files and save changes to files.\n'check' list all paths of improper formatted file.\n'dryrun' formatting source files and shows all diffs, but will not make any changes to files.")
 )
 

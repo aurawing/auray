@@ -227,7 +227,7 @@ func shouldEnablePadding(s protocol.SecurityType) bool {
 
 func reloadEnvSettings() error {
 	const defaultFlagValue = "NOT_DEFINED_AT_ALL"
-	paddingValue := platform.NewEnvFlag(platform.UseVmessPadding).GetValue(func() string { return defaultFlagValue })
+	paddingValue := platform.NewEnvFlagWithFallback(platform.AurayUseVmessPadding, platform.UseVmessPadding).GetValue(func() string { return defaultFlagValue })
 	enablePadding.Store(paddingValue != defaultFlagValue)
 	return nil
 }

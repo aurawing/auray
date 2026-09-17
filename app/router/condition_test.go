@@ -1,6 +1,7 @@
 package router_test
 
 import (
+	"os"
 	"path/filepath"
 	"runtime"
 	"strconv"
@@ -366,6 +367,19 @@ func TestLocalOSRule(t *testing.T) {
 		common.Must(err)
 		if got := cond.Apply(withBackground()); got != test.output {
 			t.Errorf("for localOS %v on %s: expected %v, got %v", test.localOS, runtime.GOOS, test.output, got)
+		}
+	}
+}
+
+func TestAurayProcessAlias(t *testing.T) {
+	executablePath, err := os.Executable()
+	common.Must(err)
+	want := filepath.ToSlash(executablePath)
+
+	for _, alias := range []string{"auray/", "xray/"} {
+		matcher := NewProcessNameMatcher([]string{alias})
+		if len(matcher.AbsPaths) != 1 || matcher.AbsPaths[0] != want {
+			t.Errorf("alias %q resolved to %v, want [%q]", alias, matcher.AbsPaths, want)
 		}
 	}
 }

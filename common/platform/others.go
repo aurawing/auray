@@ -14,10 +14,13 @@ func LineSeparator() string {
 
 // GetAssetLocation searches for `file` in the env dir, the executable dir, and certain locations
 func GetAssetLocation(file string) string {
-	assetPath := NewEnvFlag(AssetLocation).GetValue(getExecutableDir)
+	assetPath := NewEnvFlagWithFallback(AurayAssetLocation, AssetLocation).GetValue(getExecutableDir)
 	defPath := filepath.Join(assetPath, file)
 	for _, p := range []string{
 		defPath,
+		filepath.Join("/usr/local/share/auray/", file),
+		filepath.Join("/usr/share/auray/", file),
+		filepath.Join("/opt/share/auray/", file),
 		filepath.Join("/usr/local/share/xray/", file),
 		filepath.Join("/usr/share/xray/", file),
 		filepath.Join("/opt/share/xray/", file),
@@ -36,6 +39,6 @@ func GetAssetLocation(file string) string {
 
 // GetCertLocation searches for `file` in the env dir and the executable dir
 func GetCertLocation(file string) string {
-	certPath := NewEnvFlag(CertLocation).GetValue(getExecutableDir)
+	certPath := NewEnvFlagWithFallback(AurayCertLocation, CertLocation).GetValue(getExecutableDir)
 	return filepath.Join(certPath, file)
 }

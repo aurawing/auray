@@ -27,7 +27,7 @@ Arguments:
 	-d, -debug
 		Show mix.pb as JSON format.
 		FOR DEBUGGING ONLY!
-		DO NOT PASS THIS OUTPUT TO XRAY-CORE!
+		DO NOT PASS THIS OUTPUT TO AURAY OR XRAY-CORE!
 
 	-t, -type
 		Inject type information into debug output.

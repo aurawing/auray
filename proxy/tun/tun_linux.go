@@ -71,7 +71,7 @@ func NewTun(options *Config) (Tun, error) {
 }
 
 func openFromEnv(expectedName string) (int, netlink.Link, bool, error) {
-	fdStr := platform.NewEnvFlag(platform.TunFdKey).GetValue(func() string { return "" })
+	fdStr := platform.NewEnvFlagWithFallback(platform.AurayTunFdKey, platform.TunFdKey).GetValue(func() string { return "" })
 	if fdStr == "" {
 		return -1, nil, false, nil
 	}

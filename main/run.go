@@ -24,12 +24,12 @@ import (
 
 var cmdRun = &base.Command{
 	UsageLine: "{{.Exec}} run [-c config.json] [-confdir dir]",
-	Short:     "Run Xray with config, the default command",
+	Short:     "Run Auray with config, the default command",
 	Long: `
-Run Xray with config, the default command.
+Run Auray with config, the default command.
 
 The -config=file, -c=file flags set the config files for
-Xray. Multiple assign is accepted.
+Auray. Multiple assign is accepted.
 
 The -confdir=dir flag sets a dir with multiple json config
 
@@ -38,12 +38,12 @@ Default "auto".
 
 The config root env object sets process environment variables after all config
 files are parsed. Variables needed to locate or parse config files must be set
-in the process environment before Xray starts.
+in the process environment before Auray starts.
 
-The -test flag tells Xray to test config files only,
+The -test flag tells Auray to test config files only,
 without launching the server.
 
-The -dump flag tells Xray to print the merged config.
+The -dump flag tells Auray to print the merged config.
 	`,
 }
 
@@ -53,17 +53,17 @@ func init() {
 }
 
 var (
-	configFiles cmdarg.Arg // "Config file for Xray.", the option is customed type, parse in main
+	configFiles cmdarg.Arg // "Config file for Auray.", the option is customed type, parse in main
 	configDir   string
-	dump        = cmdRun.Flag.Bool("dump", false, "Dump merged config only, without launching Xray server.")
-	test        = cmdRun.Flag.Bool("test", false, "Test config file only, without launching Xray server.")
+	dump        = cmdRun.Flag.Bool("dump", false, "Dump merged config only, without launching Auray server.")
+	test        = cmdRun.Flag.Bool("test", false, "Test config file only, without launching Auray server.")
 	format      = cmdRun.Flag.String("format", "auto", "Format of input file.")
 
 	/* We have to do this here because Golang's Test will also need to parse flag, before
 	 * main func in this file is run.
 	 */
 	_ = func() bool {
-		cmdRun.Flag.Var(&configFiles, "config", "Config path for Xray.")
+		cmdRun.Flag.Var(&configFiles, "config", "Config path for Auray.")
 		cmdRun.Flag.Var(&configFiles, "c", "Short alias of -config")
 		cmdRun.Flag.StringVar(&configDir, "confdir", "", "A dir with multiple json config")
 
@@ -79,7 +79,7 @@ func executeRun(cmd *base.Command, args []string) {
 	}
 
 	printVersion()
-	server, err := startXray()
+	server, err := startAuray()
 	if err != nil {
 		fmt.Println("Failed to start:", err)
 		// Configuration error. Exit with a special value to prevent systemd from restarting.
@@ -213,7 +213,7 @@ func getConfigFormat() string {
 	return f
 }
 
-func startXray() (core.Server, error) {
+func startAuray() (core.Server, error) {
 	configFiles := getConfigFilePath(true)
 
 	c, err := core.LoadConfig(getConfigFormat(), configFiles)

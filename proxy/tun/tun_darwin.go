@@ -152,7 +152,7 @@ var (
 
 func NewTun(options *Config) (Tun, error) {
 	// Check if fd is provided via environment (iOS mode)
-	fdStr := platform.NewEnvFlag(platform.TunFdKey).GetValue(func() string { return "" })
+	fdStr := platform.NewEnvFlagWithFallback(platform.AurayTunFdKey, platform.TunFdKey).GetValue(func() string { return "" })
 	if fdStr != "" {
 		// iOS: use provided fd from NetworkExtension
 		fd, err := strconv.Atoi(fdStr)

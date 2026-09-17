@@ -1,12 +1,7 @@
-name: Build and Release for Windows 7
+name: Upstream Windows 7 build (manual)
 
 on:
   workflow_dispatch:
-  release:
-    types: [published]
-  push:
-  pull_request:
-    types: [opened, synchronize, reopened]
 
 jobs:
   check-assets:

@@ -10,7 +10,7 @@ var cmdOnlineStats = &base.Command{
 	UsageLine:   "{{.Exec}} api statsonline [--server=127.0.0.1:8080] [-email '']",
 	Short:       "Retrieve the online session count for a user",
 	Long: `
-Retrieve the current number of active sessions for a user from Xray.
+Retrieve the current number of active sessions for a user from Auray.
 
 Arguments:
 
@@ -25,7 +25,7 @@ Arguments:
 
 Example:
 
-	{{.Exec}} {{.LongName}} --server=127.0.0.1:8080 -email "xray@love.com"
+	{{.Exec}} {{.LongName}} --server=127.0.0.1:8080 -email "auray@example.com"
 `,
 	Run: executeOnlineStats,
 }

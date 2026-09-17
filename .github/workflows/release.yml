@@ -1,12 +1,7 @@
-name: Build and Release
+name: Upstream multi-platform build (manual)
 
 on:
   workflow_dispatch:
-  release:
-    types: [published]
-  push:
-  pull_request:
-    types: [opened, synchronize, reopened]
 
 jobs:
   check-assets:

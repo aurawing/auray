@@ -191,7 +191,7 @@ func initInstanceWithConfig(config *Config, server *Instance) (bool, error) {
 		return true, errors.New("failed to reload environment settings").Base(err)
 	}
 	server.ctx = context.WithValue(server.ctx, "cone",
-		platform.NewEnvFlag(platform.UseCone).GetValue(func() string { return "" }) != "true")
+		platform.NewEnvFlagWithFallback(platform.AurayUseCone, platform.UseCone).GetValue(func() string { return "" }) != "true")
 
 	for _, appSettings := range config.App {
 		settings, err := appSettings.GetInstance()
@@ -395,7 +395,7 @@ func (s *Instance) Start() error {
 		}
 	}
 
-	errors.LogWarning(s.ctx, "Xray ", Version(), " started")
+	errors.LogWarning(s.ctx, DistributionName(), " ", DistributionVersion(), " started")
 
 	return nil
 }

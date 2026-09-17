@@ -32,8 +32,8 @@ var (
 )
 
 func reloadEnvSettings() error {
-	Show.Store(strings.ToLower(platform.NewEnvFlag(platform.XUDPLog).GetValue(func() string { return "" })) == "true")
-	raw := platform.NewEnvFlag(platform.XUDPBaseKey).GetValue(func() string { return "" })
+	Show.Store(strings.ToLower(platform.NewEnvFlagWithFallback(platform.AurayXUDPLog, platform.XUDPLog).GetValue(func() string { return "" })) == "true")
+	raw := platform.NewEnvFlagWithFallback(platform.AurayXUDPBaseKey, platform.XUDPBaseKey).GetValue(func() string { return "" })
 	if raw == "" {
 		ensureBaseKey()
 		return nil

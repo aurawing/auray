@@ -152,7 +152,7 @@ func useReadV() bool {
 
 func reloadEnvSettings() error {
 	const defaultFlagValue = "NOT_DEFINED_AT_ALL"
-	value := platform.NewEnvFlag(platform.UseReadV).GetValue(func() string { return defaultFlagValue })
+	value := platform.NewEnvFlagWithFallback(platform.AurayUseReadV, platform.UseReadV).GetValue(func() string { return defaultFlagValue })
 	enabled := false
 	switch value {
 	case defaultFlagValue, "auto", "enable":

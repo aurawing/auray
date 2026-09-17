@@ -92,7 +92,7 @@ func reloadEnvSettings() error {
 
 func readDefaultBufferSize() int32 {
 	const defaultValue = -17
-	size := platform.NewEnvFlag(platform.BufferSize).GetValueAsInt(defaultValue)
+	size := platform.NewEnvFlagWithFallback(platform.AurayBufferSize, platform.BufferSize).GetValueAsInt(defaultValue)
 
 	switch size {
 	case 0:

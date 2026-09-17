@@ -1,0 +1,121 @@
+name: Build Auray Linux release
+
+on:
+  workflow_dispatch:
+    inputs:
+      auray_version:
+        description: Auray version without the v prefix
+        required: true
+        default: 1.0.0
+  push:
+    tags:
+      - "auray-v*"
+
+permissions:
+  contents: write
+
+jobs:
+  linux-amd64:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          check-latest: true
+
+      - name: Resolve versions
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/auray-v* ]]; then
+            AURAY_VERSION="${GITHUB_REF_NAME#auray-v}"
+          else
+            AURAY_VERSION="${{ inputs.auray_version }}"
+          fi
+
+          XRAY_X=$(sed -n 's/.*Version_x byte = \([0-9][0-9]*\).*/\1/p' core/core.go)
+          XRAY_Y=$(sed -n 's/.*Version_y byte = \([0-9][0-9]*\).*/\1/p' core/core.go)
+          XRAY_Z=$(sed -n 's/.*Version_z byte = \([0-9][0-9]*\).*/\1/p' core/core.go)
+          XRAY_VERSION="${XRAY_X}.${XRAY_Y}.${XRAY_Z}"
+
+          test -n "${AURAY_VERSION}"
+          test -n "${XRAY_X}"
+          test -n "${XRAY_Y}"
+          test -n "${XRAY_Z}"
+
+          echo "AURAY_VERSION=${AURAY_VERSION}" >> "${GITHUB_ENV}"
+          echo "XRAY_VERSION=${XRAY_VERSION}" >> "${GITHUB_ENV}"
+          echo "COMMIT_ID=$(git describe --always --dirty)" >> "${GITHUB_ENV}"
+
+      - name: Test branded entry points
+        run: go test ./core ./main/commands/base
+
+      - name: Build Auray
+        shell: bash
+        run: |
+          mkdir -p package/bin package/share
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
+            -o package/bin/auray \
+            -trimpath \
+            -buildvcs=false \
+            -gcflags="all=-l=4" \
+            -ldflags="-X github.com/xtls/xray-core/core.distributionVersion=${AURAY_VERSION} -X github.com/xtls/xray-core/core.build=${COMMIT_ID} -s -w -buildid=" \
+            ./main
+          package/bin/auray version
+
+      - name: Add Xray-core assets
+        shell: bash
+        run: |
+          ZIP="Xray-linux-64.zip"
+          URL="https://github.com/XTLS/Xray-core/releases/download/v${XRAY_VERSION}"
+          curl --fail --location --retry 3 --output "${ZIP}" "${URL}/${ZIP}"
+          curl --fail --location --retry 3 --output "${ZIP}.dgst" "${URL}/${ZIP}.dgst"
+
+          EXPECTED=$(grep -Ei 'SHA(2-)?256' "${ZIP}.dgst" | awk '{print $NF}' | head -n 1)
+          ACTUAL=$(sha256sum "${ZIP}" | awk '{print $1}')
+          test -n "${EXPECTED}"
+          test "${EXPECTED,,}" = "${ACTUAL,,}"
+
+          unzip -j "${ZIP}" geoip.dat geosite.dat -d package/share
+
+      - name: Create package
+        shell: bash
+        run: |
+          cp LICENSE AURAY.md package/
+          cat > package/BUILD-INFO.txt <<EOF
+          Auray ${AURAY_VERSION}
+          Based on Xray-core ${XRAY_VERSION}
+          Source commit ${GITHUB_SHA}
+          Source repository https://github.com/${GITHUB_REPOSITORY}
+          EOF
+
+          ARCHIVE="auray-linux-amd64-${AURAY_VERSION}.tar.gz"
+          tar --sort=name --owner=0 --group=0 --numeric-owner \
+            -czf "${ARCHIVE}" -C package .
+          sha256sum "${ARCHIVE}" > "${ARCHIVE}.sha256"
+          echo "ARCHIVE=${ARCHIVE}" >> "${GITHUB_ENV}"
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: auray-linux-amd64-${{ env.AURAY_VERSION }}
+          path: |
+            ${{ env.ARCHIVE }}
+            ${{ env.ARCHIVE }}.sha256
+
+      - name: Publish tagged release
+        if: startsWith(github.ref, 'refs/tags/auray-v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          if ! gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
+            gh release create "${GITHUB_REF_NAME}" \
+              --title "Auray ${AURAY_VERSION}" \
+              --generate-notes
+          fi
+          gh release upload "${GITHUB_REF_NAME}" \
+            "${ARCHIVE}" "${ARCHIVE}.sha256" --clobber

@@ -1,3 +1,15 @@
+# Auray
+
+Auray is a customized, compatibility-focused distribution of
+[XTLS/Xray-core](https://github.com/XTLS/Xray-core). It is not an official XTLS
+product. See [AURAY.md](AURAY.md) for the customization scope, build commands,
+upstream compatibility policy, and licensing notes.
+
+The remainder of this document is the upstream Xray-core README retained for
+reference and attribution.
+
+---
+
 # Project X
 
 [Project X](https://github.com/XTLS) originates from XTLS protocol, providing a set of network tools such as [Xray-core](https://github.com/XTLS/Xray-core) and [REALITY](https://github.com/XTLS/REALITY).

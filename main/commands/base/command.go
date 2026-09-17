@@ -14,8 +14,8 @@ import (
 	"sync"
 )
 
-// A Command is an implementation of a xray command
-// like xray run or xray version.
+// A Command is an implementation of an Auray command,
+// such as auray run or auray version.
 type Command struct {
 	// Run runs the command.
 	// The args are the arguments after the command name.
@@ -50,7 +50,7 @@ type Command struct {
 	Commands []*Command
 }
 
-// LongName returns the command's long name: all the words in the usage line between first word (e.g. "xray") and a flag or argument,
+// LongName returns the command's long name: all the words in the usage line between first word (e.g. "auray") and a flag or argument,
 func (c *Command) LongName() string {
 	name := c.UsageLine
 	if i := strings.Index(name, " ["); i >= 0 {
@@ -77,7 +77,7 @@ func (c *Command) Name() string {
 func (c *Command) Usage() {
 	buildCommandText(c)
 	fmt.Fprintf(os.Stderr, "usage: %s\n", c.UsageLine)
-	fmt.Fprintf(os.Stderr, "Run 'xray help %s' for details.\n", c.LongName())
+	fmt.Fprintf(os.Stderr, "Run '%s help %s' for details.\n", CommandEnv.Exec, c.LongName())
 	SetExitStatus(2)
 	Exit()
 }

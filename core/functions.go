@@ -51,7 +51,7 @@ func Dial(ctx context.Context, v *Instance, dest net.Destination) (net.Conn, err
 
 	dispatcher := v.GetFeature(routing.DispatcherType())
 	if dispatcher == nil {
-		return nil, errors.New("routing.Dispatcher is not registered in Xray core")
+		return nil, errors.New("routing.Dispatcher is not registered in Auray core")
 	}
 
 	r, err := dispatcher.(routing.Dispatcher).Dispatch(ctx, dest)
@@ -78,7 +78,7 @@ func DialUDP(ctx context.Context, v *Instance) (net.PacketConn, error) {
 
 	dispatcher := v.GetFeature(routing.DispatcherType())
 	if dispatcher == nil {
-		return nil, errors.New("routing.Dispatcher is not registered in Xray core")
+		return nil, errors.New("routing.Dispatcher is not registered in Auray core")
 	}
 	return udp.DialDispatcher(ctx, dispatcher.(routing.Dispatcher))
 }
